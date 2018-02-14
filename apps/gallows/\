@@ -1,0 +1,67 @@
+import HangmanServer from "./hangman_server";
+
+const Vue = require("vue/dist/vue.common.js");
+
+const RESPONSES = {
+  won: ["success", "You won!"],
+  lost: ["danger", "You lost!"],
+  good_guess: ["success", "Good guess!"],
+  bad_guess: ["warning", "Bad guess!"],
+  already_used: ["info", "You already guessed that"],
+  initializing: ["info", "Let's play!"],
+};
+
+window.Vue = Vue
+
+const view = hangman => {
+  const app = new Vue({
+    el: "#app",
+    data: {
+      tally: hangman.tally,
+    },
+    computed: {
+      gameOver: function() {
+        const state = this.tally.game_state;
+        return state === "won" || state === "lost";
+      },
+      gameStateMessage: function() {
+        const state = this.tally.game_state;
+        return RESPONSES[state][1]
+      },
+      gameStateClass: function() {
+        const state = this.tally.game_state;
+        return RESPONSES[state][0]
+      },
+    },
+    methods: {
+      guess: function(ch) {
+        hangman.makeMove(ch);
+      },
+      newGame: function(ch) {
+        hangman.newGame(ch);
+      },
+      alreadyGuessed: function(ch) {
+        return this.tally.used.includes(ch)
+      },
+      correctGuess: function(ch) {
+        return this.alreadyGuessed(ch) && this.tally.letters.includes(ch);
+      },
+      turns_gt: function(left) {
+        this.tally.turns_left > left
+      }
+    }
+  });
+  return app;
+};
+
+window.onload = () => {
+  const tally = {
+    turns_left: 7,
+    letters: ["h", "a", "n", "g", "m", "a", "n"],
+    game_state: "initializing",
+    used: []
+  };
+  const hangman = new HangmanServer(tally);
+  window.app = view(hangman);
+  hangman.connect();
+};

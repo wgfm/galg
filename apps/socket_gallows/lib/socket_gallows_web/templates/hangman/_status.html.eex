@@ -1,0 +1,24 @@
+<p>
+  <span class="so-far">{{ tally.letters.join(" ") }}</span>
+</p>
+
+<template v-if="gameOver">
+  <div class="new-game-button-container">
+    <button
+       class="new-game-button"
+       @click="newGame"
+    >
+      New game
+    </button>
+</template>
+<template v-else>
+  <div class="guess-buttons">
+    <button v-for="ch in 'abcdefghijklmnopqrstuvwxyz'.split('')"
+            @click="guess(ch)"
+            :class="{ correct: correctGuess(ch) }"
+            :disabled="alreadyGuessed(ch)">
+      {{ ch }}
+    </button>
+  </div>
+</template>
+
